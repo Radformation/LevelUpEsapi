@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>x64</Platforms>
+    <UseFakeEsapi>true</UseFakeEsapi>
+  </PropertyGroup>
+
+  <!-- Conditional reference to FakeEsapi -->
+  <ItemGroup Condition="'$(UseFakeEsapi)' == 'true'">
+    <ProjectReference Include="..\LevelUpEsapi.FakeEsapi\LevelUpEsapi.FakeEsapi.csproj" />
+
+    <!-- Still need to reference the ESAPI types -->
+    <Reference Include="VMS.TPS.Common.Model.Types">
+      <HintPath>C:\esapi\13.7\VMS.TPS.Common.Model.Types.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Conditional reference to ESAPI -->
+  <ItemGroup Condition="'$(UseFakeEsapi)' != 'true'">
+    <Reference Include="VMS.TPS.Common.Model.API">
+      <HintPath>C:\esapi\13.7\VMS.TPS.Common.Model.API.dll</HintPath>
+    </Reference>
+    <Reference Include="VMS.TPS.Common.Model.Types">
+      <HintPath>C:\esapi\13.7\VMS.TPS.Common.Model.Types.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
