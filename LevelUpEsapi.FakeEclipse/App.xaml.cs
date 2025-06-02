@@ -1,5 +1,6 @@
 ﻿using System.Windows;
-using LevelUpEsapi.DoseMetrics.esapi;
+using System.Windows.Media;
+using VMS.TPS;
 using VMS.TPS.Common.Model.API;
 using Application = System.Windows.Application;
 
@@ -20,7 +21,32 @@ namespace LevelUpEsapi.FakeEclipse
 
         private ScriptContext LoadScriptContext()
         {
-            return new ScriptContext() { Patient = new Patient() { Id = "Test" } };
+            return new ScriptContext
+            {
+                Patient = new Patient
+                {
+                    Id = "Test"
+                },
+                StructureSet = new StructureSet()
+                {
+                    Structures = new []
+                    {
+                        new Structure
+                        {
+                            Id = "PTV",
+                            Color = Colors.Red,
+                            Volume = 11.87934
+                        },
+                        new Structure
+                        {
+                            Id = "Liver",
+                            Color = Colors.Blue,
+                            IsEmpty = true,
+                            Volume = 132.26453
+                        }
+                    }
+                }
+            };
         }
     }
 }

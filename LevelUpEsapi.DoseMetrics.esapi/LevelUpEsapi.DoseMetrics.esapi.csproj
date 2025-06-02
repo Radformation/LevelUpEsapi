@@ -25,4 +25,7 @@
       <HintPath>C:\esapi\13.7\VMS.TPS.Common.Model.Types.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
+  </ItemGroup>
 </Project>

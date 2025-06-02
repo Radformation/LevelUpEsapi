@@ -1,13 +1,16 @@
-﻿using System.Windows;
+﻿using LevelUpEsapi.DoseMetrics.esapi;
 using VMS.TPS.Common.Model.API;
 
-namespace LevelUpEsapi.DoseMetrics.esapi
+// ReSharper disable once CheckNamespace
+namespace VMS.TPS
 {
     public class Script
     {
         public void Execute(ScriptContext context)
         {
-            MessageBox.Show(context.Patient.Id);
+            var viewModel = new MainViewModel(context);
+            var window = new MainWindow(viewModel);
+            window.ShowDialog();
         }
     }
 }
