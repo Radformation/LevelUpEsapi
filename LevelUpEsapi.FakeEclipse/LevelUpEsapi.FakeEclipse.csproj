@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\LevelUpEsapi.DoseMetrics.esapi\LevelUpEsapi.DoseMetrics.esapi.csproj" />
+    <ProjectReference Include="..\LevelUpEsapi.FakeEsapi\LevelUpEsapi.FakeEsapi.csproj" />
   </ItemGroup>
 </Project>
