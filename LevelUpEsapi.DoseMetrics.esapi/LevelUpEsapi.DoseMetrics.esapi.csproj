@@ -3,7 +3,7 @@
     <TargetFramework>net462</TargetFramework>
     <UseWPF>true</UseWPF>
     <Platforms>x64</Platforms>
-    <UseFakeEsapi>true</UseFakeEsapi>
+    <UseFakeEsapi>false</UseFakeEsapi>
   </PropertyGroup>
 
   <!-- Conditional reference to FakeEsapi -->

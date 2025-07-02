@@ -29,7 +29,7 @@ namespace LevelUpEsapi.DoseMetrics.esapi
         {
             foreach (var structure in _context.StructureSet.Structures)
             {
-                var vm = new StructureViewModel(structure);
+                var vm = new StructureViewModel(structure, _context.PlanSetup);
                 Structures.Add(vm);
             }
         }

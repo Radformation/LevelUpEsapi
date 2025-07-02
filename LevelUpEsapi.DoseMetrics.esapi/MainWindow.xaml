@@ -13,55 +13,31 @@
     d:DataContext="{d:DesignInstance l:MainViewModel}"
     >
     <Window.Resources>
-        <Style TargetType="TextBlock">
-            <Setter Property="FontSize" Value="16" />
-        </Style>
-        <Style
-            x:Key="HeadingTextBlockStyle"
-            TargetType="TextBlock"
-            >
-            <Setter Property="FontSize" Value="20" />
-            <Setter Property="FontWeight" Value="DemiBold" />
-        </Style>
-        <Style
-            x:Key="TitleTextBlockStyle"
-            TargetType="TextBlock"
-            >
-            <Setter Property="FontSize" Value="28" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <Style
-            x:Key="SubtitleTextBlockStyle"
-            TargetType="TextBlock"
-            >
-            <Setter Property="FontSize" Value="24" />
-            <Setter Property="FontWeight" Value="DemiBold" />
-        </Style>
-        <Style
-            x:Key="LabelTextBlockStyle"
-            TargetType="TextBlock"
-            >
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="Opacity" Value="0.5" />
-        </Style>
-
-        <l:ColorToBrushConverter x:Key="ColorToBrushConverter" />
-        <l:StructureToPathDataConverter x:Key="StructureToPathDataConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/LevelUpEsapi.DoseMetrics.esapi;component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <l:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+            <l:StructureToPathDataConverter x:Key="StructureToPathDataConverter" />
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="250" /> <!-- Left panel -->
+            <ColumnDefinition Width="*" />   <!-- Right panel -->
         </Grid.ColumnDefinitions>
 
+        <!-- Left panel (structure list) -->
         <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <!-- Structures title -->
             <TextBlock
                 DockPanel.Dock="Top"
                 Text="Structures"
                 Style="{StaticResource HeadingTextBlockStyle}"
                 Margin="12,12,0,0"
                 />
+            <!-- List of all structures -->
             <ScrollViewer
                 VerticalScrollBarVisibility="Auto"
                 Padding="0,0,8,0"
@@ -77,22 +53,26 @@
                                 Margin="0,4"
                                 >
                                 <DockPanel>
+                                    <!-- Structure icon -->
                                     <Viewbox
                                         VerticalAlignment="Center"
                                         Width="16"
                                         Margin="4,0,0,0"
                                         >
+                                        <!-- Use converters to get the Path and Fill Brush -->
                                         <Path
                                             Data="{Binding Structure.IsEmpty, Converter={StaticResource StructureToPathDataConverter}}"
                                             Fill="{Binding Structure.Color, Converter={StaticResource ColorToBrushConverter}}"
                                             />
                                     </Viewbox>
+                                    <!-- Structure ID -->
                                     <TextBlock
                                         Style="{StaticResource {x:Type TextBlock}}"
                                         VerticalAlignment="Center"
                                         Text="{Binding Structure.Id}"
                                         Margin="4,0,0,0"
                                         />
+                                    <!-- Structure volume -->
                                     <TextBlock
                                         Style="{StaticResource {x:Type TextBlock}}"
                                         VerticalAlignment="Center"
@@ -113,13 +93,16 @@
             Width="4"
             />
 
+        <!-- Right panel (structure metrics) -->
         <DockPanel Grid.Column="1">
+            <!-- Metrics title -->
             <TextBlock
                 DockPanel.Dock="Top"
                 Text="Metrics"
                 Style="{StaticResource HeadingTextBlockStyle}"
                 Margin="12,12,0,0"
                 />
+            <!-- List of selected structures and their metrics -->
             <ScrollViewer
                 VerticalScrollBarVisibility="Auto"
                 Padding="0,0,8,0"
@@ -129,7 +112,9 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type l:StructureViewModel}">
                             <StackPanel Margin="0,0,0,16">
+                                <!-- Structure and volume -->
                                 <DockPanel>
+                                    <!-- Structure icon -->
                                     <Viewbox
                                         VerticalAlignment="Center"
                                         Width="32"
@@ -139,12 +124,14 @@
                                             Fill="{Binding Structure.Color, Converter={StaticResource ColorToBrushConverter}}"
                                             />
                                     </Viewbox>
+                                    <!-- Structure ID -->
                                     <TextBlock
                                         Style="{StaticResource TitleTextBlockStyle}"
                                         VerticalAlignment="Center"
                                         Text="{Binding Structure.Id}"
                                         Margin="8,0,0,0"
                                         />
+                                    <!-- Structure volume -->
                                     <StackPanel
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Right"
@@ -163,6 +150,34 @@
                                             />
                                     </StackPanel>
                                 </DockPanel>
+                                <ItemsControl
+                                    ItemsSource="{Binding Metrics}"
+                                    Margin="0,4,0,0"
+                                    >
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <TextBlock
+                                                    Text="{Binding Metric}"
+                                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                                    />
+                                                <TextBlock
+                                                    DockPanel.Dock="Right"
+                                                    Text="{Binding Result, StringFormat=F3}"
+                                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                                    TextAlignment="Right"
+                                                    />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <!-- Add Metric button -->
+                                <Button
+                                    Content="Add Metric"
+                                    Command="{Binding AddMetricCommand}"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,4,0,0"
+                                    />
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

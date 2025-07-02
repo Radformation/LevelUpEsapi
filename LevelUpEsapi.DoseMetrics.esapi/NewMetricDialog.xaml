@@ -1,0 +1,51 @@
+﻿<Window
+    x:Class="LevelUpEsapi.DoseMetrics.esapi.NewMetricDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:l="clr-namespace:LevelUpEsapi.DoseMetrics.esapi"
+    mc:Ignorable="d"
+    Title="Add New Metric"
+    Width="400"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterScreen"
+    ResizeMode="NoResize"
+    Loaded="NewMetricDialog_OnLoaded"
+    d:DataContext="{d:DesignInstance l:NewMetricViewModel}"
+    >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/LevelUpEsapi.DoseMetrics.esapi;component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <StackPanel Margin="16">
+        <TextBlock TextWrapping="Wrap">
+            Enter a DVH metric using a concise format, such as "D95% [Gy]", "V20Gy [%]", or "MeanDose [Gy]".
+        </TextBlock>
+        <TextBox
+            x:Name="MetricTextBox"
+            Text="{Binding Metric, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+            Margin="0,16,0,0"
+            />
+        <StackPanel
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            Margin="0,16,0,0"
+            >
+            <Button
+                Content="Cancel"
+                IsCancel="True"
+                />
+            <Button
+                Content="Add Metric"
+                IsDefault="True"
+                Command="{Binding AddNewMetricCommand}"
+                Click="AddMetricButton_OnClick"
+                Margin="8,0,0,0"
+                />
+        </StackPanel>
+    </StackPanel>
+</Window>
