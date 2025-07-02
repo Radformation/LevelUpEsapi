@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using LevelUpEsapi.DoseMetrics.esapi.Models;
-using VMS.TPS.Common.Model.API;
-using VMS.TPS.Common.Model.Types;
 
 namespace LevelUpEsapi.DoseMetrics.esapi
 {
     public class StructureViewModel : ViewModelBase
     {
-        private readonly PlanSetup _planSetup;
+        private readonly ITpsService _tps;
 
-        public StructureViewModel(Structure structure, PlanSetup planningItem)
+        public StructureViewModel(ITpsService tps, Structure structure)
         {
-            _planSetup = planningItem;
+            _tps = tps;
             Structure = structure;
         }
 
@@ -40,10 +37,8 @@ namespace LevelUpEsapi.DoseMetrics.esapi
                 var metricText = newMetricVm.Metric;
                 if (DvhMetric.TryParse(metricText, out DvhMetric dvhMetric))
                 {
-                    DVHData dvhData = _planSetup.GetDVHCumulativeData(
-                        Structure, DoseValuePresentation.Absolute, VolumePresentation.AbsoluteCm3, 0.01);
-                    double rxDoseGy = ConvertToGy(_planSetup.TotalPrescribedDose);
-                    double result = dvhMetric.Calculate(dvhData, rxDoseGy);
+                    DvhData dvhData = _tps.CreateDvh(Structure.Id);
+                    double result = dvhMetric.Calculate(dvhData);
                     Metrics.Add(new MetricResultViewModel
                     {
                         Metric = dvhMetric,
@@ -52,19 +47,5 @@ namespace LevelUpEsapi.DoseMetrics.esapi
                 }
             }
         });
-
-        private static double ConvertToGy(DoseValue dose)
-        {
-            switch (dose.Unit)
-            {
-                case DoseValue.DoseUnit.Gy: return dose.Dose;
-                case DoseValue.DoseUnit.cGy: return dose.Dose / 100.0;
-
-                // We know dose must be absolute because we asked for it in DVH method
-                case DoseValue.DoseUnit.Percent:
-                case DoseValue.DoseUnit.Unknown:
-                default: throw new Exception($"Unexpected dose unit {dose.Unit}");
-            }
-        }
     }
 }

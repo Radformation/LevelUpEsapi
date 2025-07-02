@@ -8,7 +8,8 @@ namespace VMS.TPS
     {
         public void Execute(ScriptContext context)
         {
-            var viewModel = new MainViewModel(context);
+            var tps = new EsapiService(context);
+            var viewModel = new MainViewModel(tps);
             var window = new MainWindow(viewModel);
             window.ShowDialog();
         }

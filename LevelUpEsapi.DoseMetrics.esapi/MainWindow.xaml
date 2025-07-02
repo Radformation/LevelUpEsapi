@@ -76,7 +76,7 @@
                                     <TextBlock
                                         Style="{StaticResource {x:Type TextBlock}}"
                                         VerticalAlignment="Center"
-                                        Text="{Binding Structure.Volume, StringFormat={}{0:N1} cc}"
+                                        Text="{Binding Structure.VolumeCc, StringFormat={}{0:N1} cc}"
                                         TextAlignment="Right"
                                         Margin="4,0,0,0"
                                         />
@@ -145,7 +145,7 @@
                                             />
                                         <TextBlock
                                             Style="{StaticResource SubtitleTextBlockStyle}"
-                                            Text="{Binding Structure.Volume, StringFormat={}{0:N1} cc}"
+                                            Text="{Binding Structure.VolumeCc, StringFormat={}{0:N1} cc}"
                                             VerticalAlignment="Bottom"
                                             />
                                     </StackPanel>

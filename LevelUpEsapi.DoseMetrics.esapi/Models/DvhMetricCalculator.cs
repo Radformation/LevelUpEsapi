@@ -7,21 +7,21 @@ namespace LevelUpEsapi.DoseMetrics.esapi.Models
 {
     internal static class DvhMetricCalculator
     {
-        public static double Calculate(DvhMetric dvhMetric, DVHData dvhData, double normDoseGy)
+        public static double Calculate(DvhMetric dvhMetric, DvhData dvhData)
         {
             switch (dvhMetric.Kind)
             {
-                case DvhMetricKind.Dose:     return CalculateDoseMetric(dvhMetric, dvhData, normDoseGy);
-                case DvhMetricKind.Volume:   return CalculateVolumeMetric(dvhMetric, dvhData, normDoseGy);
-                case DvhMetricKind.MeanDose: return CalculateMeanDose(dvhMetric, dvhData, normDoseGy);
-                case DvhMetricKind.MinDose:  return CalculateMinDose(dvhMetric, dvhData, normDoseGy);
-                case DvhMetricKind.MaxDose:  return CalculateMaxDose(dvhMetric, dvhData, normDoseGy);
+                case DvhMetricKind.Dose:     return CalculateDoseMetric(dvhMetric, dvhData);
+                case DvhMetricKind.Volume:   return CalculateVolumeMetric(dvhMetric, dvhData);
+                case DvhMetricKind.MeanDose: return CalculateMeanDose(dvhMetric, dvhData);
+                case DvhMetricKind.MinDose:  return CalculateMinDose(dvhMetric, dvhData);
+                case DvhMetricKind.MaxDose:  return CalculateMaxDose(dvhMetric, dvhData);
 
                 default: throw new ArgumentOutOfRangeException();
             }
         }
 
-        private static double CalculateDoseMetric(DvhMetric metric, DVHData dvhData, double normDoseGy)
+        private static double CalculateDoseMetric(DvhMetric metric, DvhData dvhData)
         {
             // Convert the metric input volume to cc, so that we can compare
             // against the DVH data (which we know its volume is in cc)
@@ -29,16 +29,14 @@ namespace LevelUpEsapi.DoseMetrics.esapi.Models
             Log.Debug($"inputVolumeCc = {inputVolumeCc}");
 
             // Start from the right of the DVH so we find the highest dose
-            foreach (DVHPoint dvhPoint in dvhData.CurveData.Reverse())
+            foreach (DvhPoint dvhPoint in dvhData.Points.Reverse())
             {
-                if (dvhPoint.Volume >= inputVolumeCc)
+                if (dvhPoint.VolumeCc >= inputVolumeCc)
                 {
                     Log.Debug("Found point.");
-                    double dose = dvhPoint.DoseValue.Dose;
-                    Log.Debug($"dose = {dose}");
-                    DoseUnit doseUnit = GetTpsDoseUnit(dvhData);
-                    Log.Debug($"doseUnit = {doseUnit}");
-                    return ConvertDose(dose, doseUnit, metric.OutputDoseUnit.Value, normDoseGy);
+                    double doseGy = dvhPoint.DoseGy;
+                    Log.Debug($"dose = {doseGy}");
+                    return ConvertDose(doseGy, DoseUnit.Gy, metric.OutputDoseUnit.Value, dvhData.RxDoseGy);
                 }
             }
 
@@ -46,65 +44,58 @@ namespace LevelUpEsapi.DoseMetrics.esapi.Models
             return 0.0;
         }
 
-        private static double CalculateVolumeMetric(DvhMetric metric, DVHData dvhData, double normDoseGy)
+        private static double CalculateVolumeMetric(DvhMetric metric, DvhData dvhData)
         {
-            // Convert the metric input dose to TPS units, so that we can compare against the DVH data
-            double inputDose = ConvertInputDoseToTpsUnit(metric, dvhData, normDoseGy);
+            // Convert the metric input dose to Gy, so that we can compare
+            // against the DVH data (which we know is in Gy)
+            double inputDoseGy = ConvertInputDoseToGy(metric, dvhData);
 
             // Start from the right of the DVH so we find the highest volume
-            foreach (DVHPoint dvhPoint in dvhData.CurveData.Reverse())
+            foreach (DvhPoint dvhPoint in dvhData.Points.Reverse())
             {
-                if (dvhPoint.DoseValue.Dose <= inputDose)
+                if (dvhPoint.DoseGy <= inputDoseGy)
                 {
-                    double volume = dvhPoint.Volume;
-                    VolumeUnit volumeUnit = GetTpsVolumeUnit(dvhData);
-                    return ConvertVolume(volume, volumeUnit, metric.OutputVolumeUnit.Value, dvhData.Volume);
+                    double volumeCc = dvhPoint.VolumeCc;
+                    return ConvertVolume(volumeCc, VolumeUnit.Cc, metric.OutputVolumeUnit.Value, dvhData.VolumeCc);
                 }
             }
 
             return 0.0;
         }
 
-        private static double ConvertInputVolumeCc(DvhMetric metric, DVHData dvhData)
+        private static double ConvertInputVolumeCc(DvhMetric metric, DvhData dvhData)
         {
             // Get the input volume and unit from the metric
             double inputVolume = metric.Value;
             VolumeUnit inputVolumeUnit = metric.InputVolumeUnit.Value;
 
             // Convert the volume to cc
-            return ConvertVolume(inputVolume, inputVolumeUnit, VolumeUnit.Cc, dvhData.Volume);
+            return ConvertVolume(inputVolume, inputVolumeUnit, VolumeUnit.Cc, dvhData.VolumeCc);
         }
 
-        private static double ConvertInputDoseToTpsUnit(DvhMetric metric, DVHData dvhData, double normDoseGy)
+        private static double ConvertInputDoseToGy(DvhMetric metric, DvhData dvhData)
         {
             // Get the input dose and unit from the metric
             double inputDose = metric.Value;
             DoseUnit inputDoseUnit = metric.InputDoseUnit.Value;
 
             // Get the TPS dose unit and convert the input dose
-            DoseUnit tpsDoseUnit = GetTpsDoseUnit(dvhData);
-            return ConvertDose(inputDose, inputDoseUnit, tpsDoseUnit, normDoseGy);
+            return ConvertDose(inputDose, inputDoseUnit, DoseUnit.Gy, dvhData.RxDoseGy);
         }
 
-        private static double CalculateMeanDose(DvhMetric metric, DVHData dvhData, double normDoseGy)
+        private static double CalculateMeanDose(DvhMetric metric, DvhData dvhData)
         {
-            double meanDose = dvhData.MeanDose.Dose;
-            DoseUnit unit = GetTpsDoseUnit(dvhData);
-            return ConvertDose(meanDose, unit, metric.OutputDoseUnit.Value, normDoseGy);
+            return ConvertDose(dvhData.MeanDoseGy, DoseUnit.Gy, metric.OutputDoseUnit.Value, dvhData.RxDoseGy);
         }
 
-        private static double CalculateMinDose(DvhMetric metric, DVHData dvhData, double normDoseGy)
+        private static double CalculateMinDose(DvhMetric metric, DvhData dvhData)
         {
-            double minDose = dvhData.MinDose.Dose;
-            DoseUnit unit = GetTpsDoseUnit(dvhData);
-            return ConvertDose(minDose, unit, metric.OutputDoseUnit.Value, normDoseGy);
+            return ConvertDose(dvhData.MinDoseGy, DoseUnit.Gy, metric.OutputDoseUnit.Value, dvhData.RxDoseGy);
         }
 
-        private static double CalculateMaxDose(DvhMetric metric, DVHData dvhData, double normDoseGy)
+        private static double CalculateMaxDose(DvhMetric metric, DvhData dvhData)
         {
-            double maxDose = dvhData.MaxDose.Dose;
-            DoseUnit unit = GetTpsDoseUnit(dvhData);
-            return ConvertDose(maxDose, unit, metric.OutputDoseUnit.Value, normDoseGy);
+            return ConvertDose(dvhData.MaxDoseGy, DoseUnit.Gy, metric.OutputDoseUnit.Value, dvhData.RxDoseGy);
         }
 
         private static double ConvertDose(double dose, DoseUnit fromUnit, DoseUnit toUnit, double normDoseGy)

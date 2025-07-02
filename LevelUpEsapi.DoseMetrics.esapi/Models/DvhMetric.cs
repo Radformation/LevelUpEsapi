@@ -1,5 +1,4 @@
 ﻿using System;
-using VMS.TPS.Common.Model.API;
 
 namespace LevelUpEsapi.DoseMetrics.esapi.Models
 {
@@ -12,9 +11,9 @@ namespace LevelUpEsapi.DoseMetrics.esapi.Models
         public DoseUnit? OutputDoseUnit { get; set; }
         public VolumeUnit? OutputVolumeUnit { get; set; }
 
-        public double Calculate(DVHData dvhData, double normDoseGy)
+        public double Calculate(DvhData dvhData)
         {
-            return DvhMetricCalculator.Calculate(this, dvhData, normDoseGy);
+            return DvhMetricCalculator.Calculate(this, dvhData);
         }
 
         public static bool TryParse(string str, out DvhMetric metric)

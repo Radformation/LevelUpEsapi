@@ -2,17 +2,16 @@
 using System.ComponentModel;
 using System.Windows.Data;
 using GalaSoft.MvvmLight.Messaging;
-using VMS.TPS.Common.Model.API;
 
 namespace LevelUpEsapi.DoseMetrics.esapi
 {
     public class MainViewModel
     {
-        private readonly ScriptContext _context;
+        private readonly ITpsService _tps;
 
-        public MainViewModel(ScriptContext context)
+        public MainViewModel(ITpsService tps)
         {
-            _context = context;
+            _tps = tps;
 
             CheckedStructuresView = new ListCollectionView(Structures);
             CheckedStructuresView.Filter = IsStructureChecked;
@@ -27,9 +26,9 @@ namespace LevelUpEsapi.DoseMetrics.esapi
 
         public void Initialize()
         {
-            foreach (var structure in _context.StructureSet.Structures)
+            foreach (Structure structure in _tps.GetStructures())
             {
-                var vm = new StructureViewModel(structure, _context.PlanSetup);
+                var vm = new StructureViewModel(_tps, structure);
                 Structures.Add(vm);
             }
         }
